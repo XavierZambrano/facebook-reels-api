@@ -10,7 +10,7 @@ page = {
 publish_time = None
 reels_data = {
     'file_size': 0,
-    'file_path': '../assets/test_vid (4).mp4',
+    'file_path': '../assets/test_vid.mp4',
     'title': 'Verdades',
     'description': 'Verdades',
     'tags': ['frases'],

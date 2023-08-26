@@ -3,7 +3,7 @@ from moviepy.editor import VideoFileClip
 import time
 
 # api docs https://developers.facebook.com/docs/video-api/guides/reels-publishing
-# TODO check why only me can see the reels, and why don't get views
+
 
 class FacebookReelsUploader:
     def __init__(self, page_id, page_token):
@@ -113,8 +113,10 @@ class FacebookReelsUploader:
 
 
 class VideoSpecificationsChecker:
+    # TODO refactor and use this class
     def __init__(self):
         pass
+
     def check(self, file_path):
         # Check file type
         if not file_path.lower().endswith('.mp4'):
@@ -143,18 +145,4 @@ class VideoSpecificationsChecker:
         if duration < 3 or duration > 90:
             return "Error: Duration should be between 3 and 90 seconds"
 
-        # # Check video settings
-        # chroma_subsampling = "4:2:0"
-        # closed_gop = True  # Example: True or False
-        # compression = "H.264"  # Example: "H.264", "H.265", etc.
-        # # Add more video settings checks here...
-        #
-        # # Check audio settings
-        # audio_bitrate = 128  # Example: in kbps
-        # channels = "Stereo"
-        # audio_codec = "AAC Low Complexity"
-        # sample_rate = 48000  # Example: in Hz
-        # # Add more audio settings checks here...
-
-        # If all checks pass
         return "Video specifications are met"

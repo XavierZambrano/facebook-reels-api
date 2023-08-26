@@ -1,4 +1,3 @@
-from dotenv import load_dotenv
 from facebook_uploader.uploader import FacebookReelsUploader
 import os
 
@@ -25,7 +24,3 @@ reels_data = {
     'tags': ['frases'],
 }
 reels_data['file_size'] = os.path.getsize(reels_data['file_path'])
-#
-# for page in pages:
-#     uploader = FacebookReelsUploader(reels_data,  pages[page]['id'], pages[page]['access_token'], publish_time=1693188453)
-#     uploader.upload()
