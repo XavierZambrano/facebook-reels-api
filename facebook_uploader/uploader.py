@@ -1,10 +1,13 @@
 import requests
+from moviepy.editor import VideoFileClip
+import time
 
 # api docs https://developers.facebook.com/docs/video-api/guides/reels-publishing
 # TODO check why only me can see the reels, and why don't get views
 
 class FacebookReelsUploader:
     def __init__(self, page_id, page_token):
+        # TODO add validation to page_id and page_token
         self.page_id = page_id
         self.page_access_token = page_token
         self.video = None
@@ -23,7 +26,13 @@ class FacebookReelsUploader:
         print(f'Upload initialized with id: {self.video["id"]}')
         self._process_upload()  # Resume file upload if interrupted
         self._upload_status()
+
+        time.sleep(60)
+        self._upload_status()
         self._publish()
+
+        time.sleep(60)
+
         self._upload_status()
         self._publish_status()
 
@@ -47,6 +56,7 @@ class FacebookReelsUploader:
             'Authorization': 'OAuth ' + self.page_access_token,
             'offset': '0',
             'file_size': str(self.video['file_size']),
+            'Content-Type': 'application/octet-stream'
         }
         requests.post(url, data=self.video['file_data'], headers=payload)
 
@@ -100,3 +110,51 @@ class FacebookReelsUploader:
             if reel['id'] == reel_id:
                 return reel
         raise Exception(f'Reel with id {reel_id} not found')
+
+
+class VideoSpecificationsChecker:
+    def __init__(self):
+        pass
+    def check(self, file_path):
+        # Check file type
+        if not file_path.lower().endswith('.mp4'):
+            return "Error: File type should be .mp4"
+
+        # Load the video using MoviePy
+        video_clip = VideoFileClip(file_path)
+
+        # Get video properties
+        aspect_ratio = video_clip.size[0] / video_clip.size[1]
+        resolution = video_clip.size
+        frame_rate = video_clip.fps
+        duration = video_clip.duration
+
+        video_clip.close()
+
+        if aspect_ratio != 9/16:
+            return "Error: Aspect ratio should be 9:16"
+
+        if resolution[0] < 540 or resolution[1] < 960:
+            return "Error: Minimum resolution is 540 x 960 pixels"
+
+        if frame_rate < 24 or frame_rate > 60:
+            return "Error: Frame rate should be between 24 and 60 fps"
+
+        if duration < 3 or duration > 90:
+            return "Error: Duration should be between 3 and 90 seconds"
+
+        # # Check video settings
+        # chroma_subsampling = "4:2:0"
+        # closed_gop = True  # Example: True or False
+        # compression = "H.264"  # Example: "H.264", "H.265", etc.
+        # # Add more video settings checks here...
+        #
+        # # Check audio settings
+        # audio_bitrate = 128  # Example: in kbps
+        # channels = "Stereo"
+        # audio_codec = "AAC Low Complexity"
+        # sample_rate = 48000  # Example: in Hz
+        # # Add more audio settings checks here...
+
+        # If all checks pass
+        return "Video specifications are met"
