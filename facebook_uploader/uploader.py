@@ -1,6 +1,4 @@
 import requests
-from moviepy.editor import VideoFileClip
-import time
 
 # api docs https://developers.facebook.com/docs/video-api/guides/reels-publishing
 
@@ -22,19 +20,20 @@ class FacebookReelsUploader:
         video['publish_time'] = publish_time
         self.video = video
 
+        print(f'Initializing upload...')
         self._initialize_upload()
-        print(f'Upload initialized with id: {self.video["id"]}')
-        self._process_upload()  # Resume file upload if interrupted
-        self._upload_status()
 
-        time.sleep(60)
-        self._upload_status()
+        print(f'Uploading...')
+        self._process_upload()
+        if not self._is_upload_complete():
+            raise Exception('Upload failed')
+
+        print(f'Publishing...')
         self._publish()
+        if not self._is_published():
+            raise Exception('Publish failed')
 
-        time.sleep(60)
-
-        self._upload_status()
-        self._publish_status()
+        print(f'Video published/scheduled with id: {self.video["id"]}')
 
         return self.video['id']
 
@@ -60,8 +59,11 @@ class FacebookReelsUploader:
         }
         requests.post(url, data=self.video['file_data'], headers=payload)
 
+    def _is_upload_complete(self):
+        r = self._upload_status()
+        return r['status']['uploading_phase']['status'] == 'complete'
+
     def _upload_status(self):
-        # TODO What happens if the upload is interrupted? How to resume it?
         url = f'https://graph.facebook.com/v15.0/{self.video["id"]}'
         headers = {
             'Authorization': f'OAuth {self.page_access_token}'
@@ -71,8 +73,8 @@ class FacebookReelsUploader:
         }
 
         response = requests.get(url, headers=headers, params=params)
-        # TODO If response.json()["uploading_phase"] == "in_progress" OR != complete, the load must be resumed
-        print(f'upload_status: {response.json()}')
+
+        return response.json()
 
     def _publish(self):
         url = f"https://graph.facebook.com/v15.0/{self.page_id}/video_reels"
@@ -81,7 +83,6 @@ class FacebookReelsUploader:
             'access_token': self.page_access_token,
             'video_id': self.video['id'],
             'upload_phase': 'finish',
-            # 'title': self.video['title'],
             'description': self.video['description'],
         }
         if self.video['publish_time']:
@@ -91,9 +92,13 @@ class FacebookReelsUploader:
             payload['video_state'] = 'PUBLISHED'
 
         response = requests.post(url, data=payload)
-        print(response.json())
+
         if response.status_code != 200:
             raise Exception(f'Error publishing video: {response.json()}')
+
+    def _is_published(self):
+        reel = self._publish_status()
+        return True if reel else False
 
     def _publish_status(self):
         url = f"https://graph.facebook.com/v15.0/{self.page_id}/video_reels"
@@ -103,46 +108,10 @@ class FacebookReelsUploader:
 
         published_reels = response.json()['data']
         published_reel = self._find_reel_by_id(published_reels, self.video['id'])
-        print(f'publish_status: {published_reel}')
+        return published_reel
 
     def _find_reel_by_id(self, reels, reel_id):
         for reel in reels:
             if reel['id'] == reel_id:
                 return reel
         raise Exception(f'Reel with id {reel_id} not found')
-
-
-class VideoSpecificationsChecker:
-    # TODO refactor and use this class
-    def __init__(self):
-        pass
-
-    def check(self, file_path):
-        # Check file type
-        if not file_path.lower().endswith('.mp4'):
-            return "Error: File type should be .mp4"
-
-        # Load the video using MoviePy
-        video_clip = VideoFileClip(file_path)
-
-        # Get video properties
-        aspect_ratio = video_clip.size[0] / video_clip.size[1]
-        resolution = video_clip.size
-        frame_rate = video_clip.fps
-        duration = video_clip.duration
-
-        video_clip.close()
-
-        if aspect_ratio != 9/16:
-            return "Error: Aspect ratio should be 9:16"
-
-        if resolution[0] < 540 or resolution[1] < 960:
-            return "Error: Minimum resolution is 540 x 960 pixels"
-
-        if frame_rate < 24 or frame_rate > 60:
-            return "Error: Frame rate should be between 24 and 60 fps"
-
-        if duration < 3 or duration > 90:
-            return "Error: Duration should be between 3 and 90 seconds"
-
-        return "Video specifications are met"
