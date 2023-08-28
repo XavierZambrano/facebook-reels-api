@@ -1,0 +1,2 @@
+class InvalidPageAccessTokenError(Exception):
+    pass

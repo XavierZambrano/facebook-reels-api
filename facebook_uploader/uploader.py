@@ -1,14 +1,30 @@
 import requests
-
+from facebook_uploader.exceptions import InvalidPageAccessTokenError
 # api docs https://developers.facebook.com/docs/video-api/guides/reels-publishing
 
 
 class FacebookReelsUploader:
     def __init__(self, page_id, page_token):
-        # TODO add validation to page_id and page_token
         self.page_id = page_id
         self.page_access_token = page_token
         self.video = None
+
+    def is_page_access_token_valid(self):
+        # /video_reels is to get reels published,
+        # but it works to validate the page_access_token
+        # and /debug_token requires an app access token
+        url = f"https://graph.facebook.com/v15.0/{self.page_id}/video_reels"
+        params = {
+            'since': 'today',
+            'access_token': self.page_access_token
+        }
+
+        response = requests.get(url, params=params)
+
+        if response.status_code == 200:
+            return True
+        else:
+            return False
 
     def upload(self, video, publish_time=None):
         hashtags = ' '.join([f'#{tag}' for tag in video["tags"]])
