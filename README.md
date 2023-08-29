@@ -4,10 +4,10 @@ Python wrapper for the [Facebook Reels API](https://developers.facebook.com/docs
 
 ## Documentation
 
-- [Installation] #installation 
-- [Dependencies] #dependencies 
-- [Usage] #usage
-- [Instance Methods] #instance-methods
+- [Installation](#installation) 
+- [Dependencies](#dependencies) 
+- [Usage](#usage)
+- [Instance Methods](#instance-methods)
 
 ## Installation
 TODO
