@@ -1,5 +1,4 @@
 from unittest import TestCase
-from unittest.mock import Mock
 from facebook_uploader.uploader import FacebookReelsAPI
 from facebook_uploader.reel import Reel
 from facebook_uploader.exceptions import ReelIdNoneError
