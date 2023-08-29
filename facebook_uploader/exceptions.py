@@ -12,3 +12,7 @@ class ProcessUploadError(Exception):
 
 class PublishError(Exception):
     pass
+
+
+class ReelIdNoneError(Exception):
+    pass

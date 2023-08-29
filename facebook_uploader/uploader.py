@@ -1,7 +1,6 @@
 import requests
-from facebook_uploader.exceptions import InvalidPageAccessTokenError, InitializeUploadError, ProcessUploadError, PublishError
+from facebook_uploader.exceptions import InitializeUploadError, ProcessUploadError, PublishError, ReelIdNoneError
 from facebook_uploader.reel import Reel
-import os
 
 # api docs https://developers.facebook.com/docs/video-api/guides/reels-publishing
 
@@ -11,6 +10,7 @@ class FacebookReelsAPI:
         self.page_id = page_id
         self.page_access_token = page_token
         self.api_version = api_version
+        self.json = None
 
     def is_page_access_token_valid(self):
         # /video_reels is to get reels published,
@@ -21,8 +21,9 @@ class FacebookReelsAPI:
             'since': 'today',
             'access_token': self.page_access_token
         }
-        response = requests.get(url, params=params)
-        if response.status_code == 200:
+        r = requests.get(url, params=params)
+        self.json = r.json()
+        if r.status_code == 200:
             return True
         else:
             return False
@@ -41,6 +42,7 @@ class FacebookReelsAPI:
             'access_token': self.page_access_token
         }
         r = requests.post(url, data=payload)
+        self.json = r.json()
         if r.status_code == 200:
             video.id = r.json()['video_id']
         else:
@@ -55,6 +57,7 @@ class FacebookReelsAPI:
             'Content-Type': 'application/octet-stream'
         }
         r = requests.post(url, data=video.file_data, headers=payload)
+        self.json = r.json()
         if r.status_code != 200:
             raise ProcessUploadError(r.json())
 
@@ -74,31 +77,48 @@ class FacebookReelsAPI:
             payload['video_state'] = 'PUBLISHED'
 
         r = requests.post(url, data=payload)
-
+        self.json = r.json()
         if r.status_code != 200:
             raise PublishError(r.json())
 
-    def upload_status(self, video: Reel):
-        ## TODO improve this method, params
+    def upload_status(self, video: Reel, fields: list[str] = ['status']):
+        if video.id is None:
+            raise ReelIdNoneError('Initialize upload first')
+
         url = f'https://graph.facebook.com/{self.api_version}/{video.id}'
         headers = {
             'Authorization': f'OAuth {self.page_access_token}'
         }
         params = {
-            'fields': 'status'
+            'fields': ','.join(fields),
         }
 
-        response = requests.get(url, headers=headers, params=params)
+        r = requests.get(url, headers=headers, params=params)
+        self.json = r.json()
 
-        return response.json()
+        return r.json()
 
-    def get_reels(self, since: str | int, until: str | int):
-        url = f"https://graph.facebook.com/{self.api_version}/{self.page_id}/video_reels"
+    def get_reels(self, since: str | int = None, until: str | int = None):
+        url = f'https://graph.facebook.com/{self.api_version}/{self.page_id}/video_reels'
         params = {
             'access_token': self.page_access_token,
             'since': since,
             'until': until
         }
         r = requests.get(url, params=params)
-        # TODO transform to Reel object
-        return r.json()
+        self.json = r.json()
+        reels = self._json_to_reels()
+        return reels
+
+    def _json_to_reels(self):
+        reels_data = self.json['data']
+        reels = []
+        for reel_data in reels_data:
+            reel = Reel(
+                description=reel_data['description'],
+                id=reel_data['id'],
+                updated_time=reel_data['updated_time']
+            )
+            reels.append(reel)
+
+        return reels
