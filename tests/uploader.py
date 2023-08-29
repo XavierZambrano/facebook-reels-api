@@ -1,5 +1,5 @@
 from unittest import TestCase
-from facebook_uploader.uploader import FacebookReelsUploader
+from facebook_uploader.uploader import FacebookReelsAPI
 from dotenv import load_dotenv
 import os
 
@@ -15,24 +15,24 @@ class TestUploader(TestCase):
 
     def test_validate_page_access_token(self):
         self.assertTrue(
-            FacebookReelsUploader(
+            FacebookReelsAPI(
                 self.page_id, self.page_access_token
             ).is_page_access_token_valid())
 
     def test_is_page_access_token_valid_with_invalid_token(self):
         self.assertFalse(
-            FacebookReelsUploader(
+            FacebookReelsAPI(
                 self.page_id, self.invalid_page_access_token
             ).is_page_access_token_valid())
 
     def test_is_page_access_token_valid_with_invalid_page(self):
         self.assertFalse(
-            FacebookReelsUploader(
+            FacebookReelsAPI(
                 self.invalid_page_id, self.page_access_token
             ).is_page_access_token_valid())
 
     def test_is_page_access_token_valid_with_invalid_token_and_page(self):
         self.assertFalse(
-            FacebookReelsUploader(
+            FacebookReelsAPI(
                 self.invalid_page_id, self.invalid_page_access_token
             ).is_page_access_token_valid())
