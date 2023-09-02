@@ -2,6 +2,8 @@
 
 Python wrapper for the [Facebook Reels API](https://developers.facebook.com/docs/video-api/guides/reels-publishing)
 
+If the repo helps you, consider give it a star ⭐
+
 ## Documentation
 
 - [Installation](#installation) 
