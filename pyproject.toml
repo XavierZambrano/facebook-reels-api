@@ -1,0 +1,32 @@
+[build-system]
+requires = [
+    "setuptools>=61.0"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "facebook-reels-api"
+version = "1.0.0"
+authors = [
+  { name="Xavier Zambrano" },
+]
+description = "Python wrapper for the Facebook Reels API"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file="LICENSE" }
+keywords = ["facebook", "reels", "api", "wrapper"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "requests>=2.27.0",
+]
+
+[project.optional-dependencies]
+test = ['python-dotenv>=0.0.1']
+
+[project.urls]
+"Homepage" = "https://github.com/XavierZambrano/facebook-reels-api"
+"Bug Tracker" = "https://github.com/XavierZambrano/facebook-reels-api/issues"
