@@ -63,6 +63,9 @@ reels_api = FacebookReelsAPI(page_id, page_access_token)
 reels = reels_api.get_reels(since='2020-10-31', until='2020-11-31')
 ```
 
+### More examples
+- [Upload reels using a csv file](examples/upload_reels_csv.py)
+
 ## Instance Methods
 - is_page_access_token_valid
 - upload
