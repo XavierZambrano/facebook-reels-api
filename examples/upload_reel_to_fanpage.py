@@ -5,7 +5,7 @@ from facebook_uploader.reel import Reel
 page_id = 'your_page_id'
 page_access_token = 'your_page_access_token'
 
-# today, yesterday, timestamps, yyyy-mm-dd (2020-10-31)
+# timestamps and yyyy-mm-dd hh:mm:ss
 # if publish_time is None, the reel will be published immediately
 publish_time = None
 file_path = '../assets/test_vid_00.mp4'
