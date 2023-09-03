@@ -41,14 +41,14 @@ class TestUploader(TestCase):
 
     def test_upload_status_reel_id_none(self):
         reels_api = FacebookReelsAPI(self.page_id, self.page_access_token)
-        filepath = os.path.join(os.path.dirname(__file__), '../assets/test_vid.mp4')
+        filepath = os.path.join(os.path.dirname(__file__), '../assets/test_vid_00.mp4')
         reel = Reel(filepath, 'Verdades #frases')
         with self.assertRaises(ReelIdNoneError):
             reels_api.upload_status(reel)
 
     def test_upload_status(self):
         reels_api = FacebookReelsAPI(self.page_id, self.page_access_token)
-        filepath = os.path.join(os.path.dirname(__file__), '../assets/test_vid.mp4')
+        filepath = os.path.join(os.path.dirname(__file__), '../assets/test_vid_00.mp4')
         reel = Reel(filepath, 'Verdades #frases')
 
         reels_api._initialize_upload(reel)
